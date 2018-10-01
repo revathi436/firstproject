@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head align="center"><h1>TimeLine graph showing the number of deaths</h1><br><br><br></head>
+
+<body align="center" bgcolor="#FDEBD0">
+
+<svg width="350" height="300" ></svg>
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8" ></script>
+<script>
+
+var svg = d3.select("svg"),
+    margin = {top: 10, right: 30, bottom: 30, left: 100},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var parseDate = d3.time.format("%d-%b-%Y").parse,
+    bisectDate = d3.bisector(function(d) { return d.date; }).left,
+    formatValue = d3.format(",.6f"),
+    formatCurrency = function(d) { return "$" + formatValue(d); };
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom");
+var yAxis = d3.svg.axis().scale(y).orient("left");
+
+var line = d3.svg.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.deaths); });
+
+d3.tsv("deathdays.tsv", function(d) {
+  d.date = parseDate(d.date);
+  d.deaths = +d.deaths;
+  return d;
+}, function(error, data) {
+  if (error) throw error;
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain(d3.extent(data, function(d) { return d.deaths; }));
+
+  g.append("g")
+      .attr("class","axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    
+      
+
+  g.append("g")
+      .attr("class","axis")
+      .call(yAxis)
+    
+
+  g.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 2)
+      .attr("d", line);
+});
+
+</script>
+</body>
+</html>

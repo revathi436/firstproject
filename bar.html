@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+	<strong><h2><center>Bar Graph showing percentage of deaths with respect to age group</center></h2><strong>
+		<div align="right">
+				<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+				<table>
+					<tr><td>
+						<input type="button" value="Back" onclick="document.location='project1.html';" style="width: 100px; height: 30px">
+					</td></tr>
+					<tr><td>
+						<input type="button" value="Next" onclick="document.location='documentation.html';" style="width: 100px; height: 30px">
+						
+					</td></tr>
+				</table>
+		</div>
+</head>
+<style>
+
+body {
+  font: 15px Arial ;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;  
+}
+
+.bar {
+  fill: blue;
+}
+
+.bar:hover {
+  fill: red ;
+}
+
+}
+
+.d3-tip {
+    padding: 12px;
+  }
+
+
+.d3-tip:after {
+  font-size: 10px;
+  width: 100%;
+  line-height: 0.5;
+  position: absolute;
+  text-align: center;
+}
+
+}
+</style>
+<body bgcolor="#FDEBD0">
+  
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script align="center">
+
+var margin = {top: 40, right: 40, bottom: 20, left: 100},
+    width = 1000 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+
+var x = d3.scale.ordinal()
+	.rangeRoundBands([0, width], .4);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    /*.tickFormat(formatPercent);*/
+
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-5, 0])
+  .html(function(d) {
+    return "<strong>percentage_of_deaths:</strong> <span style='color:red'>" + d.percentage_of_deaths+ "</span>";
+  })
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+svg.call(tip);
+
+d3.tsv("agepopulation.tsv", type, function(error, data) {
+  x.domain(data.map(function(d) { return d.age_group; }));
+  y.domain([0, d3.max(data, function(d) { return d.percentage_of_deaths; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+	.append("text")
+	  .attr("transform", "rotate(360)")
+      .attr("x", 10)
+      .attr("dx", ".71em")
+	  .style("text-anchor", "bottom")
+	  .text("Age");
+		
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Percentage of deaths");
+
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.age_group); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.percentage_of_deaths); })
+      .attr("height", function(d) { return height - y(d.percentage_of_deaths); })
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+
+});
+
+function type(d) {
+  d.percentage_of_deaths = +d.percentage_of_deaths;
+  return d;
+}
+
+</script>
