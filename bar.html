@@ -93,7 +93,7 @@ var svg = d3.select("body").append("svg")
 
 svg.call(tip);
 
-d3.tsv("agepopulation.tsv", type, function(error, data) {
+d3.tsv("agedeaths.tsv", type, function(error, data) {
   x.domain(data.map(function(d) { return d.age_group; }));
   y.domain([0, d3.max(data, function(d) { return d.percentage_of_deaths; })]);
 
